@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 
 const EditPlan = ({ funds, updateTargetPercentages }) => {
   const [localTargets, setLocalTargets] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     const initial = {};
@@ -19,6 +21,14 @@ const EditPlan = ({ funds, updateTargetPercentages }) => {
 
   const total = Object.values(localTargets).reduce((acc, v) => acc + v, 0);
   const isValid = Math.abs(total - 100) < 0.01;
+
+  const handleUpdate = async () => {
+    setIsSaving(true);
+    await updateTargetPercentages(localTargets);
+    setIsSaving(false);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
+  };
 
   return (
     <div className="fade-in">
@@ -82,12 +92,12 @@ const EditPlan = ({ funds, updateTargetPercentages }) => {
           </div>
 
           <button 
-            className="btn btn-primary" 
-            style={{ width: '100%', padding: '14px' }}
-            disabled={!isValid}
-            onClick={() => updateTargetPercentages(localTargets)}
+            className={`btn ${saveSuccess ? 'btn-outline' : 'btn-primary'}`} 
+            style={{ width: '100%', padding: '14px', borderColor: saveSuccess ? 'var(--success)' : '', color: saveSuccess ? 'var(--success)' : '' }}
+            disabled={!isValid || isSaving || saveSuccess}
+            onClick={handleUpdate}
           >
-            Recalculate & Sync Plan
+            {isSaving ? 'Syncing...' : saveSuccess ? '✓ Plan Synced Successfully' : 'Recalculate & Sync Plan'}
           </button>
         </div>
       </div>

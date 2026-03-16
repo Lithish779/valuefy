@@ -1,7 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const Rebalancing = ({ funds, totalBuy, totalSell, freshCashNeeded, saveRecommendation }) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
   const formatCurrency = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(val);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    await saveRecommendation();
+    setIsSaving(false);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
+  };
 
   return (
     <div className="fade-in">
@@ -26,8 +37,12 @@ const Rebalancing = ({ funds, totalBuy, totalSell, freshCashNeeded, saveRecommen
       <div className="card">
         <div className="card-header">
           <h2>Rebalancing Recommendation</h2>
-          <button className="btn btn-primary" onClick={saveRecommendation} disabled={funds.length === 0}>
-            Save Recommendation
+          <button className={`btn ${saveSuccess ? 'btn-outline' : 'btn-primary'}`} 
+            onClick={handleSave} 
+            disabled={funds.length === 0 || isSaving || saveSuccess}
+            style={{ minWidth: '180px', borderColor: saveSuccess ? 'var(--success)' : '', color: saveSuccess ? 'var(--success)' : '' }}
+          >
+            {isSaving ? 'Saving...' : saveSuccess ? '✓ Saved Successfully' : 'Save Recommendation'}
           </button>
         </div>
 

@@ -1,7 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const History = ({ history, updateHistoryStatus }) => {
+  const [processingId, setProcessingId] = useState(null);
+
   const formatCurrency = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(val);
+
+  const handleStatusUpdate = async (id, status) => {
+    setProcessingId(id);
+    await updateHistoryStatus(id, status);
+    setProcessingId(null);
+  };
 
   return (
     <div className="fade-in">
@@ -48,16 +56,18 @@ const History = ({ history, updateHistoryStatus }) => {
                             <button 
                               className="btn btn-outline" 
                               style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-                              onClick={() => updateHistoryStatus(session.id, 'APPLIED')}
+                              onClick={() => handleStatusUpdate(session.id, 'APPLIED')}
+                              disabled={processingId !== null}
                             >
-                              Apply
+                              {processingId === session.id ? '...' : 'Apply'}
                             </button>
                             <button 
                               className="btn btn-outline" 
                               style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-                              onClick={() => updateHistoryStatus(session.id, 'DISMISSED')}
+                              onClick={() => handleStatusUpdate(session.id, 'DISMISSED')}
+                              disabled={processingId !== null}
                             >
-                              Dismiss
+                              {processingId === session.id ? '...' : 'Dismiss'}
                             </button>
                           </>
                         )}
